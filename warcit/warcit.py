@@ -42,7 +42,10 @@ def main(args=None):
                         help='''The base URL for all items to be included, including
                                 protocol. Example: https://cool.website:8080/files/''')
     parser.add_argument('inputs', nargs='+',
-                        help='''Paths of directories and/or files to be included in
+                        help='''Input paths of directories and/or files to be included in
+                                the WARC file.''')
+
+    parser.add_argument('-O', '--output-path', help='''Output paths of directories and/or files to be included in
                                 the WARC file.''')
 
     parser.add_argument('-d', '--fixed-dt',
@@ -57,7 +60,6 @@ def main(args=None):
 
     parser.add_argument('-a', '--append', action='store_true')
     parser.add_argument('-o', '--overwrite', action='store_true')
-
 
     parser.add_argument('--use-magic', '--magic',
                         help='''Select method for MIME type guessing:
@@ -88,7 +90,6 @@ def main(args=None):
                                 If used without --exclude, only files matching the --include patterns
                                 are processed. If used together with --exclude, files matching
                                 --include will override exclude rules.''')
-
 
     parser.add_argument('--no-warcinfo',
                         help='''Do not include technical information about the resulting
@@ -152,6 +153,7 @@ def main(args=None):
     return WARCIT(r.url_prefix,
                   r.inputs,
                   name=r.name,
+                  output_path=r.output_path,
                   fixed_dt=r.fixed_dt,
                   gzip=not r.no_gzip,
                   use_magic=r.use_magic,
@@ -175,6 +177,7 @@ def main(args=None):
 class WARCIT(BaseTool):
     def __init__(self, url_prefix, inputs,
                  name=None,
+                 output_path='',
                  fixed_dt=None,
                  gzip=True,
                  use_magic=False,
@@ -196,6 +199,8 @@ class WARCIT(BaseTool):
             url_prefix=url_prefix,
             inputs=inputs,
         )
+
+        self.output_path = output_path
 
         self.gzip = gzip
         self.count = 0
@@ -407,7 +412,7 @@ class WARCIT(BaseTool):
                 return 1
 
         try:
-            output = warcio.utils.open(self.name, self.mode)
+            output = warcio.utils.open(self.output_path + '' + self.name, self.mode)
         except OSError as e:
             # ensure only file exists handling
             if e.errno != errno.EEXIST:
