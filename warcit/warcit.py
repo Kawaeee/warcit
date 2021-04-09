@@ -24,9 +24,7 @@ import cchardet
 from warcit.base import BaseTool, get_version, init_logging
 from warcit.converter import ConversionSerializer, TransclusionSerializer
 
-
 BUFF_SIZE = 2048
-
 
 # ============================================================================
 def main(args=None):
@@ -45,8 +43,7 @@ def main(args=None):
                         help='''Input paths of directories and/or files to be included in
                                 the WARC file.''')
 
-    parser.add_argument('-O', '--output-path', help='''Output paths of directories and/or files to be included in
-                                the WARC file.''')
+    parser.add_argument('-O', '--output-path', help='''Output path of the WARC file.''')
 
     parser.add_argument('-d', '--fixed-dt',
                         help='''Set resource date and time in YYYYMMDDHHMMSS format.
@@ -177,7 +174,7 @@ def main(args=None):
 class WARCIT(BaseTool):
     def __init__(self, url_prefix, inputs,
                  name=None,
-                 output_path='',
+                 output_path=None,
                  fixed_dt=None,
                  gzip=True,
                  use_magic=False,
@@ -412,7 +409,15 @@ class WARCIT(BaseTool):
                 return 1
 
         try:
-            output = warcio.utils.open(self.output_path + '' + self.name, self.mode)
+            if self.output_path == None:
+                path = self.name
+            else:
+                if self.output_path.endswith(os.sep):
+                    self.output_path = self.output_path[:-1]
+                path = self.output_path + os.sep + self.name
+
+            output = warcio.utils.open(path , self.mode)
+
         except OSError as e:
             # ensure only file exists handling
             if e.errno != errno.EEXIST:
@@ -446,7 +451,7 @@ class WARCIT(BaseTool):
                 if self.transclusion_serializer:
                     self.make_transclusion_metadata(writer, url, record)
 
-        self.logger.info('Wrote {0} resources to {1}'.format(self.count, self.name))
+        self.logger.info('Wrote {0} resources to {1}'.format(self.count, path))
 
         self.close_logfile()
 

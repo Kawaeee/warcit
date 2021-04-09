@@ -9,6 +9,13 @@ Conversion to WARC file allows for improved durability in a standardized format,
 
 WARCIT supports converting individual files, directories (including any nested directories) as well as ZIP files into WARCs.
 
+Installation
+-----------
+Clone this repository and install with setup.py::
+
+   git clone https://github.com/Kawaeee/warcit.git
+   cd warcit
+   python setup.py install
 
 Basic Usage
 -----------
@@ -25,6 +32,7 @@ For example, the following example will download a simple web site via ``wget`` 
 
 The WARC ``www.iana.org.warc.gz`` should now have been created!
 
+Also, ``warcit`` provides -O flag for setting your own WARC output path.
 
 Mime Type Detection and Overrides
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
